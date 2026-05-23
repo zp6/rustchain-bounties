@@ -4,7 +4,7 @@ Submission for **RustChain Bounty #1107** (3 RTC).
 
 ## Contents
 
-- `comparison.md` â€” Detailed comparison article covering:
+- `comparison.md` â€?Detailed comparison article covering:
   - Platform overview (BoTTube vs YouTube Shorts)
   - Content creation experience
   - Monetization models
@@ -20,4 +20,4 @@ Submission for **RustChain Bounty #1107** (3 RTC).
 
 ## Bounty
 
-[#1107 â€” BoTTube vs YouTube Shorts Comparison](https://github.com/rustchain/rustchain-bounties/issues/1107)
+[#1107 â€?BoTTube vs YouTube Shorts Comparison](https://github.com/Scottcjn/rustchain-bounties/issues/1107)
