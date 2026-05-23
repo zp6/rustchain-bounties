@@ -102,6 +102,19 @@ class AddressBook:
             print(f"[ERROR] Entry #{entry_id} not found.")
             return None
 
+        # If address is being changed, validate and re-detect chain
+        if "address" in kwargs and kwargs["address"]:
+            new_address = kwargs["address"]
+            if not self._validate_address(new_address):
+                print(f"[ERROR] Invalid address format: {new_address}")
+                return None
+            # Check for duplicates (excluding current entry)
+            for e in self.data["addresses"]:
+                if e["address"] == new_address and e["id"] != entry_id:
+                    print(f"[WARN] Address already exists as '{e['name']}'.")
+                    return None
+            entry["chain"] = self._detect_chain(new_address)
+
         for key in ["name", "address", "group", "memo"]:
             if key in kwargs and kwargs[key]:
                 entry[key] = kwargs[key]
@@ -224,18 +237,35 @@ class AddressBook:
         addresses = imported.get("addresses", [])
         added = 0
         skipped = 0
+        invalid = 0
         for entry in addresses:
+            name = entry.get("name", "Unnamed")
+            address = entry.get("address", "")
+            group = entry.get("group", "other")
+            tags = entry.get("tags", [])
+            memo = entry.get("memo", "")
+
+            # Validate address
+            if not self._validate_address(address):
+                print(f"[WARN] Skipping invalid address for '{name}': {address}")
+                invalid += 1
+                continue
+
             # Check for duplicates
-            existing = [e for e in self.data["addresses"] if e["address"] == entry.get("address")]
+            existing = [e for e in self.data["addresses"] if e["address"] == address]
             if existing:
                 skipped += 1
                 continue
-            entry["id"] = self._next_id()
-            self.data["addresses"].append(entry)
-            added += 1
+
+            # Run through add() to enforce all invariants
+            result = self.add(name, address, group, tags, memo)
+            if result:
+                added += 1
+            else:
+                invalid += 1
 
         self.save()
-        print(f"[+] Imported: {added} added, {skipped} duplicates skipped")
+        print(f"[+] Imported: {added} added, {skipped} duplicates skipped, {invalid} invalid")
 
     def import_csv(self, filepath: str):
         """Import addresses from CSV."""
